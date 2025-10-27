@@ -1,0 +1,223 @@
+:root {
+    --primary: #1A313E;
+    --secondary: #1B2A34;
+    --accent: #8E984C;
+    --background: #1B2A34;
+    --card-bg: #1A313E;
+    --text-primary: #FFFFFF;
+    --text-secondary: #8C964B;
+    --success: #8E984C;
+    --warning: #984D33;
+    --error: #984D33;
+    --border: #1B2A34;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+
+.header h1 {
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+    .right-panel {
+        grid-column: 1 !important;
+    }
+}
+
+.panel {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+}
+
+.right-panel {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+}
+
+.panel-title {
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+input, select, button, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: var(--secondary);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--accent);
+    color: var(--text-primary);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.file-info {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--secondary);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.status {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.status.ready {
+    background-color: var(--success);
+}
+
+.status.processing {
+    background-color: var(--accent);
+}
+
+.status.error {
+    background-color: var(--error);
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.results-table th,
+.results-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.results-table th {
+    background-color: var(--primary);
+    color: var(--text-primary);
+    font-weight: bold;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: var(--secondary);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--accent);
+    transition: width 0.3s;
+}
+
+.hidden {
+    display: none;
+}
+
+.radio-group {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.radio-label input {
+    width: auto;
+}
+
+.preview-area {
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--secondary);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.error-message {
+    color: var(--error);
+    background: var(--secondary);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+}

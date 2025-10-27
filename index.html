@@ -6,215 +6,15 @@
     <title>Wealth IQ - Распознавание клиентов</title>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <style>
-        /* Стили остаются такими же как в предыдущем примере */
-        :root {
-            --primary: #1A313E;
-            --secondary: #1B2A34;
-            --accent: #8E984C;
-            --background: #1B2A34;
-            --card-bg: #1A313E;
-            --text-primary: #FFFFFF;
-            --text-secondary: #8C964B;
-            --success: #8E984C;
-            --warning: #984D33;
-            --error: #984D33;
-            --border: #1B2A34;
-        }
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Подключаем наши скрипты -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="python-code.js" defer></script>
+    <script src="pdf-processor.js" defer></script>
+    <script src="excel-processor.js" defer></script>
+    <script src="app.js" defer></script>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .header h1 {
-            color: var(--text-primary);
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .panel-title {
-            color: var(--accent);
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        button {
-            background-color: var(--secondary);
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: var(--accent);
-            color: var(--text-primary);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .file-info {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: var(--secondary);
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .status {
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .status.ready {
-            background-color: var(--success);
-        }
-
-        .status.processing {
-            background-color: var(--accent);
-        }
-
-        .status.error {
-            background-color: var(--error);
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .results-table th,
-        .results-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .results-table th {
-            background-color: var(--primary);
-            color: var(--text-primary);
-            font-weight: bold;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: var(--secondary);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: var(--accent);
-            transition: width 0.3s;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin: 10px 0;
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
-
-        .radio-label input {
-            width: auto;
-        }
-
-        .preview-area {
-            max-height: 200px;
-            overflow-y: auto;
-            background: var(--secondary);
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -223,53 +23,41 @@
         </div>
 
         <div class="content">
-            <!-- Левая панель - входные данные -->
+            <!-- Левая панель -->
             <div class="panel">
                 <div class="panel-title">База клиентов</div>
-                
                 <div class="form-group">
                     <label>Колонка с именами:</label>
-                    <input type="text" id="nameColumn" value="Название" placeholder="Название колонки">
+                    <input type="text" id="nameColumn" value="Название">
                 </div>
-                
                 <div class="form-group">
                     <label>Колонка с ID:</label>
-                    <input type="text" id="idColumn" value="Client ID" placeholder="Client ID">
+                    <input type="text" id="idColumn" value="Client ID">
                 </div>
-                
                 <div class="form-group">
                     <label>Колонка с Ответственным:</label>
-                    <input type="text" id="saleColumn" value="Ответственный" placeholder="Ответственный">
+                    <input type="text" id="saleColumn" value="Ответственный">
                 </div>
-
                 <div class="form-group">
-                    <input type="file" id="clientsFile" accept=".xlsx,.xls" style="display: none;">
+                    <input type="file" id="clientsFile" accept=".xlsx,.xls,.csv" style="display: none;">
                     <button onclick="document.getElementById('clientsFile').click()">Выбрать файл с клиентами</button>
                     <div id="clientsFileInfo" class="file-info">Файл не выбран</div>
                 </div>
+                <div id="clientsPreview" class="preview-area hidden"></div>
             </div>
 
+            <!-- Остальные панели остаются такими же -->
             <div class="panel">
                 <div class="panel-title">Параметры обработки</div>
-                
                 <div class="form-group">
                     <label>Квартал:</label>
                     <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="quarter" value="1" checked> 1 квартал
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="quarter" value="2"> 2 квартал
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="quarter" value="3"> 3 квартал
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="quarter" value="4"> 4 квартал
-                        </label>
+                        <label class="radio-label"><input type="radio" name="quarter" value="1" checked> 1 квартал</label>
+                        <label class="radio-label"><input type="radio" name="quarter" value="2"> 2 квартал</label>
+                        <label class="radio-label"><input type="radio" name="quarter" value="3"> 3 квартал</label>
+                        <label class="radio-label"><input type="radio" name="quarter" value="4"> 4 квартал</label>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Партнер:</label>
                     <select id="partner">
@@ -285,24 +73,17 @@
 
             <div class="panel">
                 <div class="panel-title">Зашифрованные клиенты</div>
-                
-                <div id="formatInfo" class="file-info">
-                    Выберите партнера для отображения формата файла
-                </div>
-
+                <div id="formatInfo" class="file-info">Выберите партнера</div>
                 <div class="form-group">
-                    <input type="file" id="encryptedFile" accept=".xlsx,.xls,.pdf,.txt" style="display: none;">
+                    <input type="file" id="encryptedFile" accept=".xlsx,.xls,.pdf,.txt,.csv" style="display: none;">
                     <button onclick="document.getElementById('encryptedFile').click()">Загрузить из файла</button>
                     <div id="encryptedFileInfo" class="file-info">Файл не выбран</div>
                 </div>
-
                 <div class="form-group">
                     <label>Или введите данные вручную:</label>
-                    <textarea id="manualInput" placeholder="Введите зашифрованные имена клиентов, каждое с новой строки" 
-                              style="width: 100%; height: 100px; padding: 10px; background: var(--secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px;"></textarea>
+                    <textarea id="manualInput" placeholder="Введите зашифрованные имена клиентов, каждое с новой строки" style="height: 100px;"></textarea>
                     <button onclick="useManualInput()">Использовать ручной ввод</button>
                 </div>
-
                 <div id="previewSection" class="hidden">
                     <div class="panel-title">Предпросмотр данных</div>
                     <div id="dataPreview" class="preview-area"></div>
@@ -311,22 +92,19 @@
 
             <div class="panel">
                 <div class="panel-title">Действия</div>
-                
                 <button id="processBtn" onclick="processData()" disabled>Запустить распознавание</button>
                 <button id="saveBtn" onclick="saveResults()" disabled>Скачать результаты</button>
             </div>
 
-            <!-- Правая панель - результаты -->
-            <div class="panel" style="grid-column: 2; grid-row: 1 / span 4;">
+            <!-- Правая панель -->
+            <div class="panel right-panel">
                 <div class="panel-title">Статус обработки</div>
-                
                 <div id="status" class="status ready">Ожидание данных...</div>
                 <div id="progressBar" class="progress-bar hidden">
                     <div class="progress-fill" style="width: 0%"></div>
                 </div>
 
                 <div class="panel-title">Результаты распознавания</div>
-                
                 <div style="overflow-x: auto;">
                     <table class="results-table" id="resultsTable">
                         <thead>
@@ -340,656 +118,13 @@
                             </tr>
                         </thead>
                         <tbody id="resultsBody">
-                            <!-- Результаты будут здесь -->
+                            <tr><td colspan="6" style="text-align: center;">Нет данных</td></tr>
                         </tbody>
                     </table>
                 </div>
-
-                <div id="stats" class="file-info" style="margin-top: 15px;">
-                    Загрузите данные и запустите обработку
-                </div>
+                <div id="stats" class="file-info">Загрузите данные и запустите обработку</div>
             </div>
         </div>
     </div>
-
-    <script>
-        // Глобальные переменные
-        let pyodide;
-        let clientsData = null;
-        let encryptedData = [];
-        let resultsData = null;
-
-        // Настройка PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        // Инициализация Pyodide
-        async function initializePyodide() {
-            console.log('Инициализация Pyodide...');
-            updateStatus('Загрузка Python среды...', 'processing');
-            
-            try {
-                pyodide = await loadPyodide();
-                
-                // Загружаем необходимые пакеты
-                await pyodide.loadPackage(["micropip", "pandas", "scikit-learn"]);
-                
-                // Устанавливаем дополнительные пакеты через micropip
-                const micropip = pyodide.pyimport("micropip");
-                await micropip.install(["fuzzywuzzy", "python-levenshtein", "transliterate"]);
-                
-                // Загружаем наш Python код
-                await loadPythonCode();
-                
-                updateStatus('Готов к работе', 'ready');
-                console.log('Pyodide инициализирован');
-            } catch (error) {
-                console.error('Ошибка инициализации:', error);
-                updateStatus('Ошибка загрузки', 'error');
-            }
-        }
-
-        // Загрузка Python кода (упрощенная версия model.py)
-        async function loadPythonCode() {
-            const pythonCode = `
-import pandas as pd
-import numpy as np
-from transliterate import translit
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from fuzzywuzzy import fuzz, process
-from difflib import SequenceMatcher
-import warnings
-import re
-from collections import Counter
-import js
-
-warnings.filterwarnings('ignore')
-
-class EnhancedFIOMatcher:
-    def __init__(self):
-        self.vectorizer_char = TfidfVectorizer(analyzer='char', ngram_range=(1, 3), min_df=1, lowercase=True)
-        self.vectorizer_word = TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 4), min_df=1, lowercase=True)
-        self.client_vectors_char = None
-        self.client_vectors_word = None
-        self.client_names = []
-        self.client_indices = []
-        self.client_sales = []
-
-    def fit(self, client_data_tuples):
-        self.client_names = [name for name, client_id, sale in client_data_tuples]
-        self.client_indices = [client_id for name, client_id, sale in client_data_tuples]
-        self.client_sales = [sale for name, client_id, sale in client_data_tuples]
-
-        if self.client_names:
-            self.client_vectors_char = self.vectorizer_char.fit_transform(self.client_names)
-            self.client_vectors_word = self.vectorizer_word.fit_transform(self.client_names)
-
-    def predict_ensemble(self, encrypted_name, top_n=3, threshold=0.2):
-        if not self.client_names:
-            return []
-
-        # Поиск по двум моделям
-        results_char = self._predict_single_model(encrypted_name, self.vectorizer_char, self.client_vectors_char, threshold)
-        results_word = self._predict_single_model(encrypted_name, self.vectorizer_word, self.client_vectors_word, threshold)
-        
-        all_results = results_char + results_word
-        results_by_client = {}
-        
-        for result in all_results:
-            client_id = result['client_id']
-            if client_id not in results_by_client or result['similarity'] > results_by_client[client_id]['similarity']:
-                results_by_client[client_id] = result
-
-        results = list(results_by_client.values())
-        results.sort(key=lambda x: x['similarity'], reverse=True)
-        return results[:top_n]
-
-    def _predict_single_model(self, encrypted_name, vectorizer, client_vectors, threshold):
-        try:
-            encrypted_vec = vectorizer.transform([encrypted_name])
-            similarities = cosine_similarity(encrypted_vec, client_vectors).flatten()
-            
-            results = []
-            for i, similarity in enumerate(similarities):
-                if similarity >= threshold:
-                    results.append({
-                        'index': i,
-                        'name': self.client_names[i],
-                        'client_id': self.client_indices[i],
-                        'sale': self.client_sales[i],
-                        'similarity': similarity,
-                        'model_type': 'tfidf'
-                    })
-            return results
-        except:
-            return []
-
-def create_client_dictionary(df, name_column='Название', id_column=None, sale_column='Ответственный'):
-    clients_dict = {}
-    client_data_tuples = []
-
-    for idx, row in df.iterrows():
-        original_name = str(row[name_column])
-        
-        # Используем ID колонку или индекс
-        if id_column and id_column in df.columns:
-            client_id = row[id_column]
-        else:
-            client_id = idx
-
-        # Ответственный
-        if sale_column and sale_column in df.columns:
-            sale = row[sale_column]
-        else:
-            sale = None
-
-        # Генерируем варианты имени
-        variants = generate_name_variants(original_name)
-
-        clients_dict[client_id] = {
-            'original': original_name,
-            'variants': variants,
-            'sale': sale
-        }
-
-        # Добавляем все варианты для обучения
-        for variant in variants:
-            client_data_tuples.append((variant, client_id, sale))
-
-    # Создаем и обучаем matcher
-    matcher = EnhancedFIOMatcher()
-    matcher.fit(client_data_tuples)
-
-    return clients_dict, matcher
-
-def generate_name_variants(name):
-    """Генерация вариантов имени"""
-    variants = [name.lower(), name.upper(), name.title()]
-    
-    try:
-        # Транслитерация
-        translit_name = translit(name, 'ru', reversed=True)
-        variants.extend([translit_name.lower(), translit_name.upper(), translit_name.title()])
-    except:
-        pass
-    
-    # Убираем дубликаты
-    return list(set([v for v in variants if v and len(v) > 0]))
-
-def process_encrypted_data(encrypted_strings, clients_dict, nlp_matcher, threshold=25):
-    """Обработка зашифрованных данных"""
-    results = []
-    
-    for encrypted_string in encrypted_strings:
-        if not encrypted_string or encrypted_string.strip() == '':
-            continue
-            
-        # Поиск совпадений
-        matches = nlp_matcher.predict_ensemble(encrypted_string, top_n=1, threshold=threshold/100)
-        
-        if matches:
-            best_match = matches[0]
-            results.append({
-                'encrypted_string': encrypted_string,
-                'matched_client': best_match['name'],
-                'client_id': best_match['client_id'],
-                'confidence_score': best_match['similarity'] * 100,
-                'method_used': best_match['model_type'],
-                'responsible': best_match['sale']
-            })
-        else:
-            # Если не нашли - пробуем fuzzy поиск
-            fuzzy_match = fuzzy_search(encrypted_string, clients_dict)
-            if fuzzy_match:
-                results.append(fuzzy_match)
-            else:
-                results.append({
-                    'encrypted_string': encrypted_string,
-                    'matched_client': 'Не найдено',
-                    'client_id': -1,
-                    'confidence_score': 0,
-                    'method_used': 'none',
-                    'responsible': None
-                })
-    
-    return results
-
-def fuzzy_search(encrypted_string, clients_dict):
-    """Простой fuzzy поиск"""
-    best_score = 0
-    best_match = None
-    
-    for client_id, client_data in clients_dict.items():
-        for variant in client_data['variants']:
-            score = fuzz.partial_ratio(encrypted_string.lower(), variant.lower())
-            if score > best_score and score > 70:
-                best_score = score
-                best_match = {
-                    'encrypted_string': encrypted_string,
-                    'matched_client': client_data['original'],
-                    'client_id': client_id,
-                    'confidence_score': score,
-                    'method_used': 'fuzzy',
-                    'responsible': client_data.get('sale')
-                }
-    
-    return best_match
-
-# Сохраняем функции для JavaScript
-js.create_client_dictionary = create_client_dictionary
-js.process_encrypted_data = process_encrypted_data
-            `;
-            
-            await pyodide.runPythonAsync(pythonCode);
-        }
-
-        // Функции для работы с PDF
-        async function extractTextFromPDF(file) {
-            return new Promise((resolve, reject) => {
-                const fileReader = new FileReader();
-                
-                fileReader.onload = async function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                        
-                        let fullText = '';
-                        
-                        // Читаем все страницы
-                        for (let i = 1; i <= pdf.numPages; i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent = await page.getTextContent();
-                            const pageText = textContent.items.map(item => item.str).join(' ');
-                            fullText += pageText + '\\n';
-                        }
-                        
-                        resolve(fullText);
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                
-                fileReader.onerror = reject;
-                fileReader.readAsArrayBuffer(file);
-            });
-        }
-
-        // Обработка PDF для разных партнеров
-        async function processPDFForPartner(pdfText, partner) {
-            const lines = pdfText.split('\\n').filter(line => line.trim().length > 0);
-            let clients = [];
-
-            switch(partner) {
-                case 'QR':
-                    // Для QR - ищем закодированные имена
-                    const qrCodes = {
-                        "090725_1": "Gulyan Karlen",
-                        "140225_1": "Уфимкина Тамара Витальевна", 
-                        "150424_1": "Лысов Денис Константинович",
-                        "150725_1": "Грёнберг Марина Вячеславовна",
-                        "161224_1": "Шин Егор Борисович",
-                        "170725_1": "Городенкер Владимир Борисович",
-                        "170925_1": "Громов Арсений Артемович",
-                        "290324_1": "Кобяков Владислав Юрьевич",
-                        "290825_1": "Бурунов Сергей Александрович"
-                    };
-
-                    // Ищем коды в тексте PDF
-                    for (const code in qrCodes) {
-                        if (pdfText.includes(code)) {
-                            clients.push(qrCodes[code]);
-                        }
-                    }
-                    break;
-
-                case 'ЗАО «Мета-Икс Маркетс»':
-                    // Для Мета-Икс - простой поиск клиентов (упрощенно)
-                    for (const line of lines) {
-                        // Ищем строки, которые могут быть именами клиентов
-                        if (line.length > 5 && line.length < 50 && 
-                            !line.toLowerCase().includes('итого') &&
-                            !line.toLowerCase().includes('total') &&
-                            !line.match(/^[\\d\\s.,]+$/)) {
-                            clients.push(line.trim());
-                        }
-                    }
-                    break;
-
-                default:
-                    // Общая обработка для других партнеров
-                    for (const line of lines) {
-                        if (line.length > 3 && line.length < 100 && 
-                            !line.toLowerCase().includes('итого') &&
-                            !line.toLowerCase().includes('total')) {
-                            clients.push(line.trim());
-                        }
-                    }
-            }
-
-            return clients.filter((client, index) => clients.indexOf(client) === index); // Убираем дубликаты
-        }
-
-        // Обработка Excel файлов (упрощенно)
-        async function processExcelFile(file) {
-            // Для демо - просто читаем как текст первые строки
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // В реальности здесь будет парсинг Excel через Pyodide
-                    // Для демо возвращаем тестовые данные
-                    resolve(['Test Client 1', 'Test Client 2', 'Test Client 3']);
-                };
-                reader.readAsText(file);
-            });
-        }
-
-        // Обработка загрузки файла с зашифрованными данными
-        document.getElementById('encryptedFile').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            updateStatus('Чтение файла...', 'processing');
-            
-            try {
-                const partner = document.getElementById('partner').value;
-                let clients = [];
-
-                if (file.name.endsWith('.pdf')) {
-                    // Обработка PDF
-                    const pdfText = await extractTextFromPDF(file);
-                    clients = await processPDFForPartner(pdfText, partner);
-                    
-                    // Показываем превью
-                    showDataPreview(clients, pdfText.substring(0, 500) + '...');
-                    
-                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    // Обработка Excel (упрощенно)
-                    clients = await processExcelFile(file);
-                    showDataPreview(clients, 'Excel файл загружен');
-                    
-                } else if (file.name.endsWith('.txt')) {
-                    // Обработка текстового файла
-                    const text = await file.text();
-                    clients = text.split('\\n')
-                        .filter(line => line.trim())
-                        .map(line => line.trim());
-                    showDataPreview(clients, text.substring(0, 500) + '...');
-                }
-
-                encryptedData = clients;
-                
-                document.getElementById('encryptedFileInfo').textContent = 
-                    `${file.name} (${encryptedData.length} клиентов)`;
-                
-                updateStatus(`Загружено ${encryptedData.length} клиентов`, 'ready');
-                checkReadyState();
-                
-            } catch (error) {
-                console.error('Ошибка чтения файла:', error);
-                updateStatus('Ошибка чтения файла', 'error');
-            }
-        });
-
-        // Показ превью данных
-        function showDataPreview(clients, rawText = '') {
-            const previewSection = document.getElementById('previewSection');
-            const dataPreview = document.getElementById('dataPreview');
-            
-            let previewHTML = `<strong>Найдено клиентов: ${clients.length}</strong><br><br>`;
-            previewHTML += `<strong>Примеры:</strong><br>`;
-            
-            clients.slice(0, 10).forEach(client => {
-                previewHTML += `• ${client}<br>`;
-            });
-            
-            if (clients.length > 10) {
-                previewHTML += `... и еще ${clients.length - 10} клиентов<br>`;
-            }
-            
-            if (rawText) {
-                previewHTML += `<br><strong>Исходный текст:</strong><br>`;
-                previewHTML += `<div style="background: var(--card-bg); padding: 5px; border-radius: 4px; margin-top: 5px;">${rawText}</div>`;
-            }
-            
-            dataPreview.innerHTML = previewHTML;
-            previewSection.classList.remove('hidden');
-        }
-
-        // Использование ручного ввода
-        function useManualInput() {
-            const manualInput = document.getElementById('manualInput').value;
-            if (!manualInput.trim()) {
-                alert('Введите данные');
-                return;
-            }
-
-            encryptedData = manualInput.split('\\n')
-                .filter(line => line.trim())
-                .map(line => line.trim());
-
-            document.getElementById('encryptedFileInfo').textContent = 
-                `Ручной ввод (${encryptedData.length} клиентов)`;
-            
-            showDataPreview(encryptedData, manualInput.substring(0, 500) + '...');
-            updateStatus(`Загружено ${encryptedData.length} клиентов`, 'ready');
-            checkReadyState();
-        }
-
-        // Остальные функции (updateStatus, checkReadyState, processData, displayResults, saveResults)
-        // остаются такими же как в предыдущем примере...
-
-        // Обновление статуса
-        function updateStatus(text, type = 'ready') {
-            const statusElement = document.getElementById('status');
-            statusElement.textContent = text;
-            statusElement.className = `status ${type}`;
-        }
-
-        // Проверка готовности
-        function checkReadyState() {
-            const hasClients = clientsData !== null;
-            const hasEncrypted = encryptedData.length > 0;
-            
-            const processBtn = document.getElementById('processBtn');
-            processBtn.disabled = !(hasClients && hasEncrypted);
-            
-            if (hasClients && hasEncrypted) {
-                updateStatus('Готов к обработке', 'ready');
-            } else if (!hasClients) {
-                updateStatus('Загрузите базу клиентов', 'ready');
-            } else {
-                updateStatus('Загрузите файл с клиентами', 'ready');
-            }
-            
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = resultsData === null;
-        }
-
-        // Обработка загрузки файла клиентов
-        document.getElementById('clientsFile').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            updateStatus('Чтение файла клиентов...', 'processing');
-            
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const data = new Uint8Array(arrayBuffer);
-                
-                // Сохраняем файл в виртуальной файловой системе Pyodide
-                pyodide.FS.writeFile('/clients_data.xlsx', data);
-                
-                // Читаем Excel файл
-                await pyodide.runPythonAsync(`
-import pandas as pd
-try:
-    clients_df = pd.read_excel('/clients_data.xlsx', engine='openpyxl')
-    print(f"Успешно загружено {len(clients_df)} записей")
-except Exception as e:
-    print(f"Ошибка загрузки: {e}")
-    clients_df = pd.DataFrame()
-                `);
-                
-                clientsData = true;
-                document.getElementById('clientsFileInfo').textContent = 
-                    `${file.name} (файл загружен)`;
-                
-                updateStatus('База клиентов загружена', 'ready');
-                checkReadyState();
-                
-            } catch (error) {
-                console.error('Ошибка загрузки файла:', error);
-                updateStatus('Ошибка загрузки файла', 'error');
-            }
-        });
-
-        // Обработка данных
-        async function processData() {
-            if (!clientsData || encryptedData.length === 0) {
-                alert('Сначала загрузите оба файла');
-                return;
-            }
-
-            updateStatus('Обработка данных...', 'processing');
-            document.getElementById('progressBar').classList.remove('hidden');
-            
-            try {
-                const nameColumn = document.getElementById('nameColumn').value;
-                const idColumn = document.getElementById('idColumn').value;
-                const saleColumn = document.getElementById('saleColumn').value;
-                const quarter = document.querySelector('input[name="quarter"]:checked').value;
-                const partner = document.getElementById('partner').value;
-
-                // Вызываем Python обработку
-                const result = await pyodide.runPythonAsync(`
-try:
-    # Создаем словарь клиентов
-    clients_dict, nlp_matcher = create_client_dictionary(
-        clients_df, 
-        name_column='${nameColumn}', 
-        id_column='${idColumn}', 
-        sale_column='${saleColumn}'
-    )
-
-    # Обрабатываем зашифрованные данные
-    encrypted_list = ${JSON.stringify(encryptedData)}
-    results = process_encrypted_data(encrypted_list, clients_dict, nlp_matcher, threshold=25)
-
-    # Создаем DataFrame
-    import json
-    results_df = pd.DataFrame(results)
-    results_df['selected_quarter'] = '${quarter}'
-    results_df['selected_partner'] = '${partner}'
-
-    # Возвращаем JSON
-    results_json = results_df.to_json(orient='records', force_ascii=False)
-    results_json
-    
-except Exception as e:
-    import traceback
-    error_msg = f"Ошибка: {str(e)}\\n{traceback.format_exc()}"
-    print(error_msg)
-    '[]'
-                `);
-
-                resultsData = JSON.parse(result);
-                displayResults(resultsData);
-                
-                updateStatus('Обработка завершена', 'ready');
-                document.getElementById('progressBar').classList.add('hidden');
-                checkReadyState();
-                
-            } catch (error) {
-                console.error('Ошибка обработки:', error);
-                updateStatus('Ошибка обработки', 'error');
-                document.getElementById('progressBar').classList.add('hidden');
-            }
-        }
-
-        // Отображение результатов
-        function displayResults(results) {
-            const tbody = document.getElementById('resultsBody');
-            tbody.innerHTML = '';
-
-            let foundCount = 0;
-            
-            results.forEach(result => {
-                const row = document.createElement('tr');
-                
-                if (result.confidence_score > 0) foundCount++;
-                
-                const confidenceColor = result.confidence_score > 65 ? 'var(--success)' : 
-                                      result.confidence_score > 30 ? 'var(--accent)' : 'var(--warning)';
-                
-                row.innerHTML = \`
-                    <td>\${result.encrypted_string}</td>
-                    <td>\${result.matched_client}</td>
-                    <td>\${result.client_id}</td>
-                    <td>\${result.responsible || ''}</td>
-                    <td style="color: \${confidenceColor}">\${result.confidence_score.toFixed(1)}%</td>
-                    <td>\${result.method_used}</td>
-                \`;
-                
-                tbody.appendChild(row);
-            });
-
-            document.getElementById('stats').textContent = 
-                \`Обработано: \${results.length} | Найдено совпадений: \${foundCount}\`;
-        }
-
-        // Сохранение результатов
-        function saveResults() {
-            if (!resultsData) {
-                alert('Нет данных для сохранения');
-                return;
-            }
-
-            // Создаем CSV
-            const headers = ['Зашифрованный клиент', 'Client ID', 'Плательщик', 'Уверенность', 'Метод', 'Ответственный'];
-            const csvContent = [
-                headers.join(','),
-                ...resultsData.map(row => [
-                    \`"\${row.encrypted_string}"\`,
-                    row.client_id,
-                    \`"\${row.matched_client}"\`,
-                    row.confidence_score.toFixed(1),
-                    row.method_used,
-                    \`"\${row.responsible || ''}"\`
-                ].join(','))
-            ].join('\\n');
-
-            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', \`wiqs_results_\${new Date().toISOString().slice(0,10)}.csv\`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Обновление информации о формате
-        document.getElementById('partner').addEventListener('change', function() {
-            const partner = this.value;
-            const formatInfo = document.getElementById('formatInfo');
-            
-            const formats = {
-                'ЗАО Ардшинбанк': 'Формат: Excel файл, колонка B, начиная с 6 строки',
-                'ОАО Армброк': 'Формат: Excel файл, колонка B, начиная с 12 строки', 
-                'АО Финам': 'Формат: Excel файл с агрегацией по клиентам',
-                'ЗАО «Мета-Икс Маркетс»': 'Формат: PDF файл с таблицами (автоопределение)',
-                'QR': 'Формат: PDF файл с кодированными клиентами (автоопределение)',
-                'ТТА': 'Формат: Excel файл, колонка A, начиная с 2 строки'
-            };
-            
-            formatInfo.textContent = formats[partner] || 'Выберите партнера';
-        });
-
-        // Инициализация при загрузке
-        initializePyodide();
-    </script>
 </body>
 </html>
